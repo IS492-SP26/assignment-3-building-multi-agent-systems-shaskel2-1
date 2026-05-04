@@ -1,14 +1,13 @@
 """
 Research Tools Module
-Contains tools for web search, paper search, citation extraction, etc.
 """
 
-from .web_search import WebSearchTool
-from .paper_search import PaperSearchTool
+from .web_search import web_search
+from .paper_search import paper_search
 from .citation_tool import CitationTool
 
 __all__ = [
-    "WebSearchTool",
-    "PaperSearchTool",
+    "web_search",
+    "paper_search",
     "CitationTool",
 ]
