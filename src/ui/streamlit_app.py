@@ -217,7 +217,9 @@ def display_evaluation_panel():
                 config = st.session_state.config
                 from src.evaluation.judge import LLMJudge
                 judge = LLMJudge(config)
-                eval_result = asyncio.run(judge.evaluate(query=query, response=response))
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                    eval_result = pool.submit(asyncio.run, judge.evaluate(query=query, response=response)).result()
 
                 st.success(f"Overall Score: **{eval_result['overall_score']:.4f}** (0-1 scale)")
                 st.markdown(f"Rubric Score: `{eval_result['rubric_score']:.4f}` | "

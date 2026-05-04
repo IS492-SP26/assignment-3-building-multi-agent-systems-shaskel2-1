@@ -13,10 +13,21 @@ Workflow:
 import asyncio
 import concurrent.futures
 import logging
-from typing import Any, Dict, List, Optional
+import re
+from typing import Any, Dict, List
 
 from src.agents.autogen_agents import create_research_team
 from src.guardrails.safety_manager import SafetyManager
+
+
+def _run_async(coro):
+    """
+    Run an async coroutine safely from any thread (including Streamlit's
+    ScriptRunner thread, which has no event loop).
+    Always spawns a dedicated worker thread with its own event loop.
+    """
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, coro).result()
 
 
 class AutoGenOrchestrator:
@@ -36,20 +47,14 @@ class AutoGenOrchestrator:
         self.team = create_research_team(config)
         self.logger.info("Research team ready.")
 
-        self.workflow_trace: List[Dict[str, Any]] = []
-
     def process_query(self, query: str, max_rounds: int = 20) -> Dict[str, Any]:
         """
         Process a research query through the multi-agent system.
-
-        Steps:
-          1. Input safety check
-          2. Multi-agent research pipeline
-          3. Output safety check
+        Safe to call from any thread (including Streamlit).
         """
         self.logger.info("Processing query: %s", query[:80])
 
-        # --- 1. Input safety ---
+        # 1. Input safety
         input_safety = self.safety_manager.check_input_safety(query)
         if not input_safety["safe"] and input_safety["action"] == "refuse":
             return {
@@ -60,7 +65,6 @@ class AutoGenOrchestrator:
                     "num_messages": 0,
                     "num_sources": 0,
                     "agents_involved": [],
-                    "safety_events": self.safety_manager.get_safety_events(),
                     "input_blocked": True,
                 },
                 "safety_events": self.safety_manager.get_safety_events(),
@@ -68,19 +72,9 @@ class AutoGenOrchestrator:
 
         safe_query = input_safety.get("query", query)
 
-        # --- 2. Run agents ---
+        # 2. Run agents (always in a fresh thread with its own event loop)
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                with concurrent.futures.ThreadPoolExecutor() as pool:
-                    result = pool.submit(
-                        asyncio.run,
-                        self._process_query_async(safe_query, max_rounds),
-                    ).result()
-            else:
-                result = loop.run_until_complete(
-                    self._process_query_async(safe_query, max_rounds)
-                )
+            result = _run_async(self._process_query_async(safe_query))
         except Exception as exc:
             self.logger.error("Error in agent pipeline: %s", exc, exc_info=True)
             return {
@@ -92,10 +86,8 @@ class AutoGenOrchestrator:
                 "safety_events": self.safety_manager.get_safety_events(),
             }
 
-        # --- 3. Output safety ---
-        output_safety = self.safety_manager.check_output_safety(
-            result.get("response", ""),
-        )
+        # 3. Output safety
+        output_safety = self.safety_manager.check_output_safety(result.get("response", ""))
         result["response"] = output_safety["response"]
         result["metadata"]["safety_events"] = self.safety_manager.get_safety_events()
         result["metadata"]["output_action"] = output_safety["action"]
@@ -103,7 +95,7 @@ class AutoGenOrchestrator:
 
         return result
 
-    async def _process_query_async(self, query: str, max_rounds: int = 20) -> Dict[str, Any]:
+    async def _process_query_async(self, query: str) -> Dict[str, Any]:
         task_message = (
             f"Research Query: {query}\n\n"
             "Please work together to answer this query comprehensively:\n"
@@ -114,10 +106,8 @@ class AutoGenOrchestrator:
         )
 
         task_result = await self.team.run(task=task_message)
-
         messages = self._extract_messages(task_result)
         final_response = self._find_final_response(messages)
-
         return self._build_result(query, messages, final_response)
 
     def _extract_messages(self, task_result) -> List[Dict[str, Any]]:
@@ -146,7 +136,6 @@ class AutoGenOrchestrator:
         return messages
 
     def _find_final_response(self, messages: List[Dict[str, Any]]) -> str:
-        """Return the last Writer message, or last Critic message, or last message."""
         for msg in reversed(messages):
             if msg["source"] == "Writer" and len(msg["content"]) > 50:
                 return msg["content"].replace("DRAFT COMPLETE", "").strip()
@@ -157,12 +146,7 @@ class AutoGenOrchestrator:
             return messages[-1]["content"].replace("TERMINATE", "").strip()
         return ""
 
-    def _build_result(
-        self,
-        query: str,
-        messages: List[Dict[str, Any]],
-        final_response: str,
-    ) -> Dict[str, Any]:
+    def _build_result(self, query: str, messages: List[Dict[str, Any]], final_response: str) -> Dict[str, Any]:
         plan = ""
         research_findings: List[str] = []
         critique = ""
@@ -177,10 +161,8 @@ class AutoGenOrchestrator:
             elif src == "Critic":
                 critique = content
 
-        import re
         all_text = " ".join(m["content"] for m in messages)
         urls = list(dict.fromkeys(re.findall(r'https?://[^\s<>"{}|\\^`\[\]]+', all_text)))
-
         agents_involved = list(dict.fromkeys(
             m["source"] for m in messages if m["source"] != "unknown"
         ))
