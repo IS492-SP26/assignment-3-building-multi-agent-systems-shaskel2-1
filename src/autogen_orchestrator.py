@@ -15,8 +15,6 @@ import concurrent.futures
 import logging
 from typing import Any, Dict, List, Optional
 
-from autogen_agentchat.messages import TextMessage, ToolCallMessage, ToolCallResultMessage
-
 from src.agents.autogen_agents import create_research_team
 from src.guardrails.safety_manager import SafetyManager
 
@@ -48,9 +46,6 @@ class AutoGenOrchestrator:
           1. Input safety check
           2. Multi-agent research pipeline
           3. Output safety check
-
-        Returns a dict with:
-          - query, response, conversation_history, metadata, safety_events
         """
         self.logger.info("Processing query: %s", query[:80])
 
@@ -126,31 +121,32 @@ class AutoGenOrchestrator:
         return self._build_result(query, messages, final_response)
 
     def _extract_messages(self, task_result) -> List[Dict[str, Any]]:
-        """Convert AutoGen TaskResult messages to plain dicts."""
+        """Convert AutoGen TaskResult messages to plain dicts (version-agnostic)."""
         messages = []
         for msg in task_result.messages:
             source = getattr(msg, "source", "unknown")
-            if isinstance(msg, (ToolCallMessage,)):
-                content_parts = []
-                for call in (msg.content if isinstance(msg.content, list) else []):
-                    name = getattr(call, "name", "tool")
-                    args = getattr(call, "arguments", "")
-                    content_parts.append(f"[Tool call: {name}({args})]")
-                content = "\n".join(content_parts) if content_parts else str(msg.content)
-            elif isinstance(msg, (ToolCallResultMessage,)):
-                content_parts = []
-                for res in (msg.content if isinstance(msg.content, list) else []):
-                    content_parts.append(str(getattr(res, "content", res)))
-                content = "\n".join(content_parts) if content_parts else str(msg.content)
+            raw = getattr(msg, "content", "")
+            if isinstance(raw, str):
+                content = raw
+            elif isinstance(raw, list):
+                parts = []
+                for item in raw:
+                    if isinstance(item, str):
+                        parts.append(item)
+                    elif hasattr(item, "content"):
+                        parts.append(str(item.content))
+                    elif hasattr(item, "name") and hasattr(item, "arguments"):
+                        parts.append(f"[Tool call: {item.name}({item.arguments})]")
+                    else:
+                        parts.append(str(item))
+                content = "\n".join(parts)
             else:
-                raw = getattr(msg, "content", "")
-                content = raw if isinstance(raw, str) else str(raw)
-
+                content = str(raw)
             messages.append({"source": source, "content": content})
         return messages
 
     def _find_final_response(self, messages: List[Dict[str, Any]]) -> str:
-        """Return the last Writer message, or the last Critic message, or the last message."""
+        """Return the last Writer message, or last Critic message, or last message."""
         for msg in reversed(messages):
             if msg["source"] == "Writer" and len(msg["content"]) > 50:
                 return msg["content"].replace("DRAFT COMPLETE", "").strip()
@@ -185,7 +181,9 @@ class AutoGenOrchestrator:
         all_text = " ".join(m["content"] for m in messages)
         urls = list(dict.fromkeys(re.findall(r'https?://[^\s<>"{}|\\^`\[\]]+', all_text)))
 
-        agents_involved = list(dict.fromkeys(m["source"] for m in messages if m["source"] != "unknown"))
+        agents_involved = list(dict.fromkeys(
+            m["source"] for m in messages if m["source"] != "unknown"
+        ))
 
         return {
             "query": query,
