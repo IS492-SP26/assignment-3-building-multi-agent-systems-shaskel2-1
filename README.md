@@ -54,8 +54,8 @@ Claude assisted with the formatting, writing, and debugging of this lab.
 ### 1. Clone and enter the repo
 
 ```bash
-git clone <your-repo-url>
-cd assignment-3-building-multi-agent-systems-<username>
+git clone <https://github.com/IS492-SP26/assignment-3-building-multi-agent-systems-shaskel2-1.git>
+cd assignment-3-building-multi-agent-systems-<shaskel2>
 ```
 
 ### 2. Create and activate a virtual environment
