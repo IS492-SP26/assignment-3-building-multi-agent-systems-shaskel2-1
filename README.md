@@ -6,7 +6,7 @@ A multi-agent deep research system for Human-Computer Interaction topics, built 
 
 ## AI Disclosure Statement
 
-Claude assisted with the formatting and debugging of this lab.
+Claude assisted with the formatting, writing, and debugging of this lab. 
 
 ---
 
