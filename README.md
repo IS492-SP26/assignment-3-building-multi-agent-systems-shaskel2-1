@@ -137,7 +137,7 @@ The system was tested on the following representative query:
 
 ### Screenshot (Streamlit UI)
 
-![Streamlit UI placeholder - run the app locally to see the interface](docs/screenshot_placeholder.md)
+![Streamlit UI](docs/ui_screenshot.png)
 
 To reproduce the demo locally:
 
