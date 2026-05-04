@@ -212,6 +212,6 @@ logs/
 data/*.json
 data/*.csv
 !data/example_queries.json
-outputs/
+# outputs/  # commented out to include sample outputs in repo
 *.pkl
 *.pickle

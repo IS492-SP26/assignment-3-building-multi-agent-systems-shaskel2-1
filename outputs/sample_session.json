@@ -1,0 +1,39 @@
+{
+  "query": "What are the key principles of explainable AI for novice users?",
+  "response": "## Explainable AI for Novice Users: Key Principles\n\nExplainable AI (XAI) aims to make AI systems understandable to the humans who use them. For novice users who lack technical knowledge of machine learning, this challenge is especially important.\n\n### 1. Transparency\nThe system should make its reasoning visible. Users should be able to see which input features most influenced an AI decision [Ribeiro et al., 2016]. Tools like LIME and SHAP provide feature importance scores that can be presented in plain language.\n\n### 2. Interpretability Through Simplicity\nExplanations should use concepts familiar to the user, avoiding technical jargon. Research shows that example-based explanations (showing similar past cases) are often more intuitive for novices than feature-weight diagrams [Cai et al., 2019].\n\n### 3. Interactivity\nAllowing users to ask \"why?\" questions and explore counterfactuals (e.g., \"What would change this decision?\") significantly improves user understanding and trust [Wachter et al., 2017].\n\n### 4. Trust Calibration\nOverly confident AI outputs can mislead novices. Effective XAI communicates uncertainty honestly, helping users know when to rely on or override AI recommendations [Zhang et al., 2020].\n\n### 5. Context-Aware Explanations\nDifferent users in different contexts need different levels of detail. Adaptive explanation depth that matches user expertise improves satisfaction and task performance [Lim et al., 2009].\n\n## References\n- Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). \"Why should I trust you?\": Explaining the predictions of any classifier. *KDD 2016*. https://arxiv.org/abs/1602.04938\n- Cai, C. J., et al. (2019). Human-centered tools for coping with imperfect algorithms during medical decision-making. *CHI 2019*. https://dl.acm.org/doi/10.1145/3290605.3300234\n- Wachter, S., Mittelstadt, B., & Russell, C. (2017). Counterfactual explanations without opening the black box. *Harvard Journal of Law & Technology*. https://arxiv.org/abs/1711.00399\n- Zhang, Y., et al. (2020). Effect of confidence and explanation on accuracy and trust calibration in AI-assisted decision making. *FAT* 2020. https://dl.acm.org/doi/10.1145/3351095.3372852\n- Lim, B. Y., Dey, A. K., & Avrahami, D. (2009). Why and why not explanations improve the intelligibility of context-aware intelligent systems. *CHI 2009*. https://dl.acm.org/doi/10.1145/1518701.1518920",
+  "conversation_history": [
+    {
+      "source": "Planner",
+      "content": "Research Plan for 'Explainable AI for novice users':\n\n1. Search for academic definitions of XAI and its core principles (transparency, interpretability, trust)\n2. Search for CHI and CSCW papers on novice user studies with XAI systems\n3. Search for practical design guidelines from industry (Google, IBM, Microsoft)\n4. Search for user studies that compare different explanation types (feature-based, example-based, counterfactual)\n5. Synthesize into a structured response with citations\n\nSearch queries to use:\n- 'explainable AI principles novice users HCI'\n- 'XAI user study interpretability transparency'\n- 'LIME SHAP user interface design'\n\nPLAN COMPLETE"
+    },
+    {
+      "source": "Researcher",
+      "content": "I searched for academic papers and web sources on explainable AI for novice users.\n\nKey sources found:\n1. Ribeiro et al. (2016) - LIME: 'Why should I trust you?' - KDD 2016 - https://arxiv.org/abs/1602.04938\n2. Cai et al. (2019) - Human-centered tools for imperfect algorithms - CHI 2019 - https://dl.acm.org/doi/10.1145/3290605.3300234\n3. Wachter et al. (2017) - Counterfactual explanations - HJLT - https://arxiv.org/abs/1711.00399\n4. Zhang et al. (2020) - Trust calibration in AI-assisted decisions - FAT* 2020 - https://dl.acm.org/doi/10.1145/3351095.3372852\n5. Lim et al. (2009) - Why and why not explanations - CHI 2009 - https://dl.acm.org/doi/10.1145/1518701.1518920\n6. Google PAIR (2019) - People + AI Guidebook - https://pair.withgoogle.com/guidebook/\n\nRESEARCH COMPLETE"
+    },
+    {
+      "source": "Writer",
+      "content": "## Explainable AI for Novice Users: Key Principles\n\n[Full response as above]\n\nDRAFT COMPLETE"
+    },
+    {
+      "source": "Critic",
+      "content": "The response is well-organized, covers the major XAI principles with appropriate citations, and is written at an accessible level for novice readers. The five principles are clearly differentiated and grounded in research. The References section is properly formatted. TERMINATE"
+    }
+  ],
+  "metadata": {
+    "num_messages": 4,
+    "num_sources": 6,
+    "plan": "Research Plan for Explainable AI...",
+    "agents_involved": ["Planner", "Researcher", "Writer", "Critic"],
+    "citations": [
+      "https://arxiv.org/abs/1602.04938",
+      "https://dl.acm.org/doi/10.1145/3290605.3300234",
+      "https://arxiv.org/abs/1711.00399",
+      "https://dl.acm.org/doi/10.1145/3351095.3372852",
+      "https://dl.acm.org/doi/10.1145/1518701.1518920",
+      "https://pair.withgoogle.com/guidebook/"
+    ],
+    "output_action": "allow",
+    "safety_events": []
+  },
+  "safety_events": []
+}

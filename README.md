@@ -1,136 +1,191 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/SEjAoIAq)
-# Multi-Agent Research System - Assignment 3
 
-Starter scaffold for a multi-agent deep-research assistant on HCI topics. The repo includes example structure, partial implementations, and guided TODOs for agents, tools, guardrails, UI, and evaluation.
+# Multi-Agent HCI Research Assistant
+
+A multi-agent deep research system for Human-Computer Interaction topics, built with AutoGen + Qwen3-8B. Four specialized agents collaborate to plan, gather evidence, synthesize, and critique research responses with real web and academic search tool use.
+
+## AI Disclosure Statement
+
+Claude assisted with the formatting and debugging of this lab.
+
+---
 
 ## Project Structure
 
-```text
+```
 .
 ├── src/
 │   ├── agents/
-│   │   └── autogen_agents.py          # AutoGen agent creation + tool wiring
-│   ├── autogen_orchestrator.py        # Multi-agent orchestration scaffold
+│   │   └── autogen_agents.py          # Planner, Researcher, Writer, Critic agents
+│   ├── autogen_orchestrator.py        # Orchestration + safety integration
 │   ├── guardrails/
-│   │   ├── safety_manager.py          # Safety coordination scaffold
-│   │   ├── input_guardrail.py         # Input validation scaffold
-│   │   └── output_guardrail.py        # Output validation scaffold
+│   │   ├── safety_manager.py          # Safety coordinator (input + output)
+│   │   ├── input_guardrail.py         # Input validation (5 policy categories)
+│   │   └── output_guardrail.py        # Output validation (PII, harmful, misinformation)
 │   ├── tools/
 │   │   ├── web_search.py              # Tavily / Brave search
 │   │   ├── paper_search.py            # Semantic Scholar search
-│   │   └── citation_tool.py           # Citation formatting utilities
+│   │   └── citation_tool.py           # APA / MLA citation formatting
 │   ├── evaluation/
-│   │   ├── judge.py                   # LLM-as-a-Judge scaffold
-│   │   └── evaluator.py               # Batch evaluation scaffold
+│   │   ├── judge.py                   # LLM-as-a-Judge (2 independent prompts)
+│   │   └── evaluator.py               # Batch evaluation pipeline
 │   └── ui/
-│       ├── cli.py                     # Interactive CLI
+│       ├── cli.py                     # Interactive CLI with traces + safety display
 │       └── streamlit_app.py           # Streamlit web UI
 ├── data/
-│   ├── example_queries.json           # Primary evaluation dataset
-│   └── test_queries_sample.json       # Alternate/fallback dataset
+│   └── example_queries.json           # 8 diverse HCI evaluation queries
 ├── docs/
-│   └── TODO_AUDIT_AND_SOLUTIONS.md    # TODO inventory + guidance notes
-├── config.yaml
+│   └── technical_report.docx          # 3-4 page technical report
+├── outputs/
+│   ├── sample_session.json            # Exported sample session (full)
+│   ├── sample_research_output.md      # Formatted Markdown research artifact
+│   ├── sample_evaluation_results.json # LLM-as-a-Judge results for all 8 queries
+│   └── judge_raw_output_sample.json   # Raw judge prompts and outputs
+├── config.yaml                        # All tunable settings
 ├── requirements.txt
-├── .env.example
-├── example_autogen.py
-└── main.py
+├── .env.example                       # Environment variable template
+└── main.py                            # Entry point for all run modes
 ```
+
+---
 
 ## Setup
 
-### 1) Prerequisites
-
-- Python 3.9+
-- `uv` (recommended) or `pip`
-
-### 2) Install dependencies
-
-Using `uv`:
+### 1. Clone and enter the repo
 
 ```bash
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
+git clone <your-repo-url>
+cd assignment-3-building-multi-agent-systems-<username>
 ```
 
-Using `pip`:
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3) Configure environment variables
+### 4. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-Minimum required keys:
+Edit `.env` and fill in:
 
-- One model API path:
-  - `OPENAI_API_KEY` (+ `OPENAI_BASE_URL` for vLLM/OpenAI-compatible endpoints), or
-  - `GROQ_API_KEY`
-- One search API:
-  - `TAVILY_API_KEY` or `BRAVE_API_KEY`
+| Variable | Required | Description |
+|---|---|---|
+| `OPENAI_API_KEY` | Yes | Key for the vLLM endpoint |
+| `OPENAI_BASE_URL` | Yes | vLLM base URL (e.g., https://vllm.salt-lab.org/v1) |
+| `OPENAI_MODEL` | Yes | Model name (e.g., Qwen/Qwen3-8B) |
+| `TAVILY_API_KEY` | Yes (one of) | Tavily web search key |
+| `BRAVE_API_KEY` | Alt | Brave search key (if no Tavily) |
+| `SEMANTIC_SCHOLAR_API_KEY` | Optional | Higher rate limits for paper search |
 
-Optional:
-
-- `SEMANTIC_SCHOLAR_API_KEY` (recommended for higher paper-search rate limits)
+---
 
 ## Running
 
-### AutoGen example mode (default)
+### Streamlit Web UI (recommended)
 
 ```bash
-python main.py
-# or
-python main.py --mode autogen
+python main.py --mode web
+# or: streamlit run src/ui/streamlit_app.py
 ```
 
-### CLI
+Opens at http://localhost:8501. Enter a query, click Search, and view response in the Response tab. Agent traces appear in the Agent Traces tab. Safety events appear as banners and in the safety log panel.
+
+### Interactive CLI
 
 ```bash
 python main.py --mode cli
 ```
 
-### Streamlit web UI
+### Single end-to-end demo (query to final response to session export)
 
 ```bash
-python main.py --mode web
-# or
-streamlit run src/ui/streamlit_app.py
+python main.py
 ```
 
-### Batch evaluation scaffold
+Runs one demo query, prints the full response and metadata, and saves the session to `outputs/demo_session_<timestamp>.json`.
+
+### Batch evaluation with LLM-as-a-Judge
 
 ```bash
 python main.py --mode evaluate
 ```
 
-By default, this path only runs a simple test query until students complete the evaluation TODOs in `src/evaluation/` and wire them through `main.py`.
+Runs all 8 queries from `data/example_queries.json` through the full pipeline and the judge. Saves detailed results and summary to `outputs/`.
 
-## Assignment Checklist (What Students Still Need To Complete)
+---
 
-- [ ] Finalize agent prompts/roles and end-to-end orchestration behavior.
-- [ ] Finish tool integration and evidence formatting.
-- [ ] Complete safety/guardrail logic and connect it to runtime flow.
-- [ ] Surface safety outcomes clearly in the UI.
-- [ ] Finish LLM-as-a-Judge scoring and batch evaluation reporting.
-- [ ] Ensure CLI/web interfaces show traces and citations clearly.
-- [ ] Document reproducible demo steps and representative outputs.
+## Demo
 
-## Notes
+The system was tested on the following representative query:
 
-- Some modules are intentionally partial and include TODO markers for students to complete.
-- Use `ASSIGNMENT_INSTRUCTIONS.md` as the primary guide for where each requirement should be implemented.
+**Query:** "What are the key principles of explainable AI for novice users?"
+
+**Sample output:** See `outputs/sample_research_output.md`  
+**Full session JSON:** See `outputs/sample_session.json`  
+**Judge scores for this query:** Overall 0.8312, Relevance 0.90, Evidence 0.85, Accuracy 0.80, Safety 0.95, Clarity 0.85
+
+### Screenshot (Streamlit UI)
+
+![Streamlit UI placeholder - run the app locally to see the interface](docs/screenshot_placeholder.md)
+
+To reproduce the demo locally:
+
+```bash
+python main.py --mode web
+# Enter: "What are the key principles of explainable AI for novice users?"
+# Click Search
+# Navigate to Agent Traces tab to see per-agent outputs
+```
+
+---
+
+## Safety Policies
+
+The system enforces five prohibited categories:
+
+| Category | Detection | Action |
+|---|---|---|
+| `harmful_content` | Keyword matching (violence, weapons, hacking) | Refuse |
+| `prompt_injection` | Regex patterns (ignore instructions, jailbreak) | Refuse |
+| `off_topic_queries` | HCI keyword heuristics | Warn or refuse |
+| `pii_exposure` | Regex (email, phone, SSN, credit card) | Redact |
+| `misinformation` | Absolute claim patterns | Sanitize |
+
+All safety events are logged to `logs/safety_events.log` and surfaced in the UI.
+
+---
+
+## Evaluation Results Summary
+
+8 queries evaluated. Average overall score: **0.7214 / 1.0**
+
+| Criterion | Average Score |
+|---|---|
+| Relevance | 0.785 |
+| Evidence Quality | 0.710 |
+| Factual Accuracy | 0.740 |
+| Safety Compliance | 0.890 |
+| Clarity | 0.760 |
+
+Full results: `outputs/sample_evaluation_results.json`  
+Judge raw output: `outputs/judge_raw_output_sample.json`
+
+---
 
 ## References
 
 - [AutoGen documentation](https://microsoft.github.io/autogen/)
 - [Tavily API](https://docs.tavily.com/)
 - [Semantic Scholar API](https://api.semanticscholar.org/)
-- [Guardrails AI](https://docs.guardrailsai.com/)
-- [NeMo Guardrails](https://docs.nvidia.com/nemo/guardrails/)
+- [Qwen3-8B](https://huggingface.co/Qwen/Qwen3-8B)

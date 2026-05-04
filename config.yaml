@@ -1,9 +1,8 @@
 # Configuration file for Multi-Agent Research System
-# You can modify these settings for their implementation
 
 system:
-  name: "Multi-Agent Research Assistant"
-  topic: "HCI Research"  # Change this to your chosen topic
+  name: "Multi-Agent HCI Research Assistant"
+  topic: "Explainable AI in Human-Computer Interaction"
   max_iterations: 10
   timeout_seconds: 300
 
@@ -11,130 +10,168 @@ agents:
   planner:
     role: "Task Planner"
     enabled: true
-    # Custom system prompt (optional - leave empty to use default)
-    # If provided, ensure it includes the handoff signal: "PLAN COMPLETE"
-    system_prompt: ""  # Empty = use default prompt
-    # Example custom prompt:
-    # system_prompt: |
-    #   You are an expert research planner specializing in HCI topics.
-    #   Break down queries into specific, actionable research steps.
-    #   Focus on recent publications (last 5 years) and seminal works.
-    #   After creating the plan, say "PLAN COMPLETE".
+    system_prompt: |
+      You are a Research Planner specializing in Human-Computer Interaction (HCI) and Explainable AI (XAI).
+      Your job is to break down research queries into clear, actionable steps.
+
+      When given a research query:
+      1. Identify the key concepts and topics to investigate
+      2. Determine what types of sources would be most valuable (academic papers, web articles, etc.)
+      3. Suggest 3-5 specific search queries for the Researcher to use
+      4. Outline how the findings should be synthesized
+
+      Provide your plan as a numbered list. Be specific. End your message with PLAN COMPLETE.
 
   researcher:
     role: "Evidence Gatherer"
     enabled: true
-    # Custom system prompt (optional - leave empty to use default)
-    # If provided, ensure it mentions tools and includes: "RESEARCH COMPLETE"
-    system_prompt: ""  # Empty = use default prompt
+    system_prompt: |
+      You are a Research Specialist in HCI and Explainable AI.
+      Your job is to gather high-quality information from academic papers and web sources.
+
+      You have access to web_search and paper_search tools. When conducting research:
+      1. Follow the Planner's research plan closely
+      2. Use paper_search for academic sources (prioritize peer-reviewed work)
+      3. Use web_search for recent developments, blog posts, and practical applications
+      4. For each source, note the title, URL, and key finding
+      5. Gather at least 5-8 diverse sources
+
+      Always cite sources with their URLs. End your message with RESEARCH COMPLETE.
     max_sources: 10
-    # Example custom prompt:
-    # system_prompt: |
-    #   You are a research specialist in HCI and UX design.
-    #   Use web_search() and paper_search() tools to gather evidence.
-    #   Prioritize peer-reviewed papers and authoritative sources.
-    #   After collecting 8-10 sources, say "RESEARCH COMPLETE".
 
   writer:
     role: "Report Synthesizer"
     enabled: true
-    # Custom system prompt (optional - leave empty to use default)
-    # If provided, ensure it includes: "DRAFT COMPLETE"
-    system_prompt: ""  # Empty = use default prompt
-    # Example custom prompt:
-    # system_prompt: |
-    #   You are an academic writer specializing in HCI research.
-    #   Synthesize findings with proper APA citations.
-    #   Write in a clear, engaging style accessible to students.
-    #   After completing the draft, say "DRAFT COMPLETE".
+    system_prompt: |
+      You are a Research Writer specializing in HCI and AI topics.
+      Your job is to synthesize research findings into clear, well-organized responses.
+
+      When writing:
+      1. Begin with a brief overview paragraph
+      2. Organize findings into clear thematic sections with headers
+      3. Cite sources inline using [Author, Year] or [Source: Title] format
+      4. Synthesize information from multiple sources rather than summarizing one at a time
+      5. Include a References section at the end listing all sources
+      6. Write at an advanced undergraduate level
+
+      End your message with DRAFT COMPLETE.
 
   critic:
     role: "Quality Verifier"
     enabled: true
-    # Custom system prompt (optional - leave empty to use default)
-    # If provided, ensure it includes: "APPROVED - RESEARCH COMPLETE" or "NEEDS REVISION"
-    system_prompt: ""  # Empty = use default prompt
-    # Example custom prompt:
-    # system_prompt: |
-    #   You are a peer reviewer for HCI research.
-    #   Evaluate for academic rigor, source quality, and clarity.
-    #   Be thorough but constructive in your feedback.
-    #   Say "APPROVED - RESEARCH COMPLETE" or "NEEDS REVISION".
+    system_prompt: |
+      You are a Research Critic and Quality Reviewer.
+      Evaluate the Writer's response on:
+      1. Relevance: Does it directly answer the original query?
+      2. Evidence: Are claims backed by cited sources?
+      3. Completeness: Are important aspects covered?
+      4. Clarity: Is it well-organized and readable?
+
+      Provide brief, constructive feedback (2-3 sentences).
+      If the response is good enough, end with TERMINATE.
+      If it needs significant revision, describe the specific issues.
 
 models:
-  # Default model for agents (Groq)
   default:
     provider: "vllm"
-    name: "openai/gpt-oss-20b"
+    name: "Qwen/Qwen3-8B"
     temperature: 0.7
     max_tokens: 2048
 
-  # Judge model for evaluation
   judge:
     provider: "vllm"
-    name: "openai/gpt-oss-20b"
-    temperature: 0.3
+    name: "Qwen/Qwen3-8B"
+    temperature: 0.2
     max_tokens: 1024
 
 tools:
   web_search:
     enabled: true
-    provider: "tavily"  # or "brave"
+    provider: "tavily"
     max_results: 5
 
   paper_search:
     enabled: true
     provider: "semantic_scholar"
-    max_results: 10
+    max_results: 8
 
   citation_extraction:
     enabled: true
 
 safety:
   enabled: true
-  framework: "guardrails"  # or "nemo_guardrails"
+  framework: "custom"
   log_events: true
+  safety_log_file: "logs/safety_events.log"
 
-  # Define prohibited categories
   prohibited_categories:
     - "harmful_content"
     - "personal_attacks"
     - "misinformation"
+    - "prompt_injection"
     - "off_topic_queries"
+    - "pii_exposure"
 
-  # Response strategies
   on_violation:
-    action: "refuse"  # or "sanitize" or "redirect"
-    message: "I cannot process this request due to safety policies."
+    action: "refuse"
+    message: "I cannot process this request because it violates the system safety policy. Please ask a question related to HCI or AI research."
+
+  input_rules:
+    min_length: 5
+    max_length: 2000
+    blocked_keywords:
+      - "ignore previous instructions"
+      - "ignore all instructions"
+      - "disregard your instructions"
+      - "forget everything"
+      - "jailbreak"
+      - "bypass safety"
+      - "you are now"
+      - "act as if"
+      - "pretend you are"
+      - "new persona"
+    harmful_keywords:
+      - "how to hack"
+      - "how to attack"
+      - "how to exploit"
+      - "bomb"
+      - "weapon"
+      - "malware"
+      - "ransomware"
+      - "phishing"
 
 evaluation:
   enabled: true
-  num_test_queries: 10
+  num_test_queries: 8
 
-  # Judge criteria
   criteria:
     - name: "relevance"
       weight: 0.25
-      description: "How relevant is the response to the query?"
+      description: "How well does the response address the query? Does it stay on topic and answer the question asked?"
 
     - name: "evidence_quality"
       weight: 0.25
-      description: "Quality of citations and evidence used"
+      description: "Does the response cite credible sources? Are citations specific and properly attributed? Is evidence used to support claims?"
 
     - name: "factual_accuracy"
       weight: 0.20
-      description: "Factual correctness and consistency"
+      description: "Are the facts and claims in the response accurate and consistent? Are there any clear errors or unsupported assertions?"
 
     - name: "safety_compliance"
       weight: 0.15
-      description: "No unsafe or inappropriate content"
+      description: "Does the response avoid unsafe, biased, or inappropriate content? Does it comply with responsible AI guidelines?"
 
     - name: "clarity"
       weight: 0.15
-      description: "Clarity and organization of response"
+      description: "Is the response well-organized, clearly written, and easy to understand? Does it use appropriate structure and language?"
 
 logging:
   level: "INFO"
   file: "logs/system.log"
   safety_log: "logs/safety_events.log"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+ui:
+  verbose: true
+  show_traces: true
+  max_history: 20

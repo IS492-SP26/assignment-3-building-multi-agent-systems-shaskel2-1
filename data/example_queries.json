@@ -3,171 +3,64 @@
     "id": 1,
     "query": "What are the key principles of explainable AI for novice users?",
     "category": "explainable_ai",
-    "expected_topics": [
-      "transparency",
-      "interpretability",
-      "user understanding",
-      "trust"
-    ],
-    "ground_truth": "Explainable AI for novices should focus on transparency, simple visualizations, interactive explanations, and building user trust through understandable model behavior.",
-    "expected_sources": [
-      "academic papers on XAI",
-      "HCI research on AI transparency",
-      "user studies"
-    ]
+    "expected_topics": ["transparency", "interpretability", "user understanding", "trust", "LIME", "SHAP"],
+    "ground_truth": "Explainable AI for novices should prioritize human-interpretable explanations, interactive visual aids, simple language, and feedback mechanisms that build user trust. Core principles include transparency (making model decisions visible), interpretability (producing human-readable rationales), and user control (allowing users to question and verify AI outputs).",
+    "expected_sources": ["academic papers on XAI", "HCI research on AI transparency", "user studies"]
   },
   {
     "id": 2,
-    "query": "How has AR usability evolved in the past 5 years?",
+    "query": "How has augmented reality usability evolved in the past 5 years?",
     "category": "ar_usability",
-    "expected_topics": [
-      "interaction techniques",
-      "user experience",
-      "hardware improvements",
-      "application domains"
-    ],
+    "expected_topics": ["interaction techniques", "user experience", "hardware improvements", "spatial computing", "Apple Vision Pro", "Meta Quest"],
     "ground_truth": null,
-    "expected_sources": [
-      "recent AR research papers",
-      "CHI conference proceedings",
-      "industry reports"
-    ]
+    "expected_sources": ["recent AR research papers", "CHI conference proceedings", "industry reports"]
   },
   {
     "id": 3,
     "query": "What are ethical considerations in using AI for education?",
     "category": "ai_ethics",
-    "expected_topics": [
-      "bias",
-      "privacy",
-      "accessibility",
-      "transparency",
-      "student autonomy"
-    ],
+    "expected_topics": ["bias", "privacy", "accessibility", "transparency", "student autonomy", "algorithmic fairness"],
     "ground_truth": null,
-    "expected_sources": [
-      "ethics papers",
-      "educational technology research",
-      "policy documents"
-    ]
+    "expected_sources": ["ethics papers", "educational technology research", "policy documents"]
   },
   {
     "id": 4,
     "query": "Compare different approaches to measuring user experience in mobile applications",
     "category": "ux_measurement",
-    "expected_topics": [
-      "questionnaires",
-      "analytics",
-      "user testing",
-      "physiological measures"
-    ],
+    "expected_topics": ["SUS", "UEQ", "NPS", "user testing", "biometrics", "eye tracking", "think-aloud"],
     "ground_truth": null,
-    "expected_sources": [
-      "UX research papers",
-      "methodological papers",
-      "case studies"
-    ]
+    "expected_sources": ["UX research papers", "methodological papers", "case studies"]
   },
   {
     "id": 5,
-    "query": "What are the latest developments in conversational AI for healthcare?",
+    "query": "How do conversational agents fail users, and how can designers mitigate these failures?",
     "category": "conversational_ai",
-    "expected_topics": [
-      "chatbots",
-      "patient interaction",
-      "clinical decision support",
-      "privacy concerns"
-    ],
+    "expected_topics": ["error recovery", "graceful degradation", "turn-taking", "intent recognition", "fallback strategies"],
     "ground_truth": null,
-    "expected_sources": [
-      "medical informatics papers",
-      "healthcare AI research",
-      "clinical studies"
-    ]
+    "expected_sources": ["chatbot usability studies", "conversational AI design guidelines", "failure analysis research"]
   },
   {
     "id": 6,
-    "query": "How do design patterns for accessibility differ across web and mobile platforms?",
+    "query": "What design patterns improve accessibility for users with visual impairments on the web?",
     "category": "accessibility",
-    "expected_topics": [
-      "screen readers",
-      "touch interfaces",
-      "WCAG guidelines",
-      "responsive design"
-    ],
+    "expected_topics": ["WCAG", "screen readers", "ARIA", "color contrast", "keyboard navigation", "semantic HTML"],
     "ground_truth": null,
-    "expected_sources": [
-      "accessibility guidelines",
-      "comparative studies",
-      "design pattern libraries"
-    ]
+    "expected_sources": ["W3C accessibility guidelines", "accessibility research", "assistive technology studies"]
   },
   {
     "id": 7,
     "query": "What are best practices for visualizing uncertainty in data displays?",
     "category": "data_visualization",
-    "expected_topics": [
-      "visual encoding",
-      "uncertainty representation",
-      "user comprehension",
-      "design guidelines"
-    ],
+    "expected_topics": ["confidence intervals", "error bars", "gradient encoding", "probability distributions", "user comprehension"],
     "ground_truth": null,
-    "expected_sources": [
-      "visualization research",
-      "perceptual studies",
-      "design guidelines"
-    ]
+    "expected_sources": ["visualization research", "perceptual studies", "InfoVis conference papers"]
   },
   {
     "id": 8,
-    "query": "How can voice interfaces be designed for elderly users?",
-    "category": "voice_interfaces",
-    "expected_topics": [
-      "age-related challenges",
-      "speech recognition",
-      "error handling",
-      "user preferences"
-    ],
-    "ground_truth": null,
-    "expected_sources": [
-      "aging and technology research",
-      "voice UI papers",
-      "user studies with elderly"
-    ]
-  },
-  {
-    "id": 9,
-    "query": "What are emerging trends in AI-driven prototyping tools?",
-    "category": "ai_prototyping",
-    "expected_topics": [
-      "generative design",
-      "automation",
-      "designer collaboration",
-      "tool capabilities"
-    ],
-    "ground_truth": null,
-    "expected_sources": [
-      "design tools research",
-      "AI in design papers",
-      "industry tools and reviews"
-    ]
-  },
-  {
-    "id": 10,
-    "query": "How do cultural factors influence mobile app design?",
+    "query": "How do cultural factors influence the design of voice interfaces?",
     "category": "cross_cultural_design",
-    "expected_topics": [
-      "localization",
-      "cultural dimensions",
-      "user preferences",
-      "design adaptations"
-    ],
+    "expected_topics": ["localization", "Hofstede dimensions", "speech norms", "formality", "multilingual support"],
     "ground_truth": null,
-    "expected_sources": [
-      "cross-cultural HCI research",
-      "cultural studies",
-      "international design case studies"
-    ]
+    "expected_sources": ["cross-cultural HCI research", "localization studies", "voice UI design literature"]
   }
 ]
